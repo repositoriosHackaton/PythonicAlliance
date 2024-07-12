@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Registro de Usuario</h2>
+<form id="registerForm" method="POST" action="/register">
+    <label for="username">Nombre de Usuario:</label>
+    <input type="text" id="username" name="username" required>
+    <button type="button" id="startCamera">Iniciar Cámara</button>
+    <div id="cameraContainer">
+        <video id="video" width="320" height="240" autoplay></video>
+        <button type="button" id="capture">Capturar</button>
+    </div>
+    <input type="hidden" id="irisImages" name="iris_images">
+    <button type="submit">Registrar</button>
+</form>
+<div id="capturedFrames"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('video');
+        const canvas = document.createElement('canvas');
+        const captureButton = document.getElementById('capture');
+        const startCameraButton = document.getElementById('startCamera');
+        const capturedFrames = document.getElementById('capturedFrames');
+        const irisImagesInput = document.getElementById('irisImages');
+        let irisImages = [];
+
+        startCameraButton.addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        });
+
+        captureButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const imageData = canvas.toDataURL('image/jpeg');
+            irisImages.push(imageData);
+            const img = document.createElement('img');
+            img.src = imageData;
+            capturedFrames.appendChild(img);
+
+            if (irisImages.length >= 3) {
+                irisImagesInput.value = JSON.stringify(irisImages);
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Verificación de Usuario</h2>
+<form id="verifyForm" method="POST" action="/verify">
+    <label for="username">Nombre de Usuario:</label>
+    <input type="text" id="username" name="username" required>
+    
+    <button type="button" id="startCamera">Iniciar Cámara</button>
+    <div id="cameraContainer">
+        <video id="video" width="320" height="240" autoplay></video>
+        <button type="button" id="capture">Capturar</button>
+    </div>
+    <input type="hidden" id="irisImage" name="iris_image">
+    <button type="submit">Verificar</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('video');
+        const canvas = document.createElement('canvas');
+        const captureButton = document.getElementById('capture');
+        const startCameraButton = document.getElementById('startCamera');
+        const irisImageInput = document.getElementById('irisImage');
+
+        startCameraButton.addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        });
+
+        captureButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const imageData = canvas.toDataURL('image/jpeg');
+            irisImageInput.value = imageData;
+        });
+    });
+</script>
+{% endblock %}
